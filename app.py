@@ -4,7 +4,7 @@ import os
 from flask import Flask, render_template, request, jsonify
 import google.generativeai as genai
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder='.')
 
 # It is recommended to set the API key as an environment variable for security.
 # In your terminal, run: export GOOGLE_API_KEY='your_api_key_here'
