@@ -1,4 +1,3 @@
-<!-- templates/index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,15 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Travel Itinerary Generator</title>
     
-    <!-- Google Fonts for better typography -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Lora:wght@400;600&display=swap" rel="stylesheet">
     
-    <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
-    <!-- marked.js for Markdown to HTML conversion -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
     <style>
@@ -51,7 +47,6 @@
         .form-group input { width: 100%; padding: 0.8rem 1rem; border: 1px solid var(--border-color); border-radius: 8px; box-sizing: border-box; font-size: 1rem; transition: border-color 0.2s, box-shadow 0.2s; }
         .form-group input:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25); }
 
-        /* Style for the combined budget input and currency selector */
         .budget-group {
             display: flex;
             border: 1px solid var(--border-color);
@@ -78,7 +73,6 @@
         }
         .budget-group select:focus { outline: none; }
 
-
         button#generate-btn { display: block; width: 100%; padding: 1rem; background: linear-gradient(45deg, #007bff, #0056b3); color: white; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; }
         button#generate-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0, 123, 255, 0.3); }
         button#generate-btn:disabled { background: #a9cce3; cursor: not-allowed; transform: none; box-shadow: none; }
@@ -100,7 +94,6 @@
         a { color: var(--primary-color); text-decoration: none; font-weight: 600; }
         a:hover { text-decoration: underline; }
 
-        /* Accordion Styles */
         .accordion-item { border-bottom: 1px solid var(--border-color); }
         .accordion-item:last-child { border-bottom: none; }
         .accordion-header { padding: 1rem 0; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-weight: 600; font-size: 1.1rem; }
