@@ -4,13 +4,16 @@ import os
 from flask import Flask, render_template, request, jsonify
 import google.generativeai as genai
 
-app = Flask(__name__)
+# FIX #1: Added template_folder='.' to avoid folder structure issues on GitHub.
+app = Flask(__name__, template_folder='.')
+
 try:
     genai.configure(api_key=os.environ.get("GOOGLE_API_KEY"))
 except AttributeError:
     print("API Key not found. Please set the GOOGLE_API_KEY environment variable.")
     exit()
 
+# FIX #2: Corrected the typo from "GenerativIModel" to "GenerativeModel".
 model = genai.GenerativeModel('gemini-1.5-flash')
 
 CURRENCY_RATES_TO_USD = {
