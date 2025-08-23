@@ -1,24 +1,17 @@
-# app.py
-
 import os
 from flask import Flask, render_template, request, jsonify
 import google.generativeai as genai
 
 app = Flask(__name__, template_folder='.')
 
-# It is recommended to set the API key as an environment variable for security.
-# In your terminal, run: export GOOGLE_API_KEY='your_api_key_here'
 try:
     genai.configure(api_key=os.environ.get("GOOGLE_API_KEY"))
 except AttributeError:
     print("API Key not found. Please set the GOOGLE_API_KEY environment variable.")
     exit()
 
-# Create the model
 model = genai.GenerativeModel('gemini-1.5-flash')
 
-# Approximate conversion rates to 1 USD.
-# In a real-world application, you would use a live API for this.
 CURRENCY_RATES_TO_USD = {
     "USD": 1.0,
     "INR": 83.5,
@@ -30,7 +23,6 @@ CURRENCY_RATES_TO_USD = {
 }
 
 def get_llm_response(prompt):
-    """Sends a prompt to the Gemini API and returns the response."""
     try:
         response = model.generate_content(prompt)
         return ''.join(part.text for part in response.parts)
@@ -39,7 +31,6 @@ def get_llm_response(prompt):
         return "Sorry, I couldn't process your request at the moment. Please try again later."
 
 def generate_google_maps_link(city, locations):
-    """Generates a Google Maps link with the specified locations."""
     if not locations:
         return ""
     base_url = "https://www.google.com/maps/dir/"
@@ -48,22 +39,18 @@ def generate_google_maps_link(city, locations):
 
 @app.route('/')
 def index():
-    """Renders the main page."""
     return render_template('index.html')
 
 @app.route('/generate', methods=['POST'])
 def generate():
-    """Handles the form submission and generates the itinerary."""
     city = request.form['city']
     budget_original = float(request.form['budget'])
     currency = request.form['currency']
     days = request.form['days']
 
-    # Convert the budget to USD for the LLM
     conversion_rate = CURRENCY_RATES_TO_USD.get(currency, 1.0)
     budget_usd = round(budget_original / conversion_rate)
 
-    # --- Prompt Chaining ---
     prompt1 = (f"Generate a high-level travel plan for a {days}-day trip to {city}. "
                f"The user's budget is approximately {budget_original} {currency} (which is about ${budget_usd} USD). "
                f"Keep this budget in mind for all recommendations. Include a brief summary and a list of key attractions.")
