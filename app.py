@@ -6,8 +6,6 @@ from flask import Flask, render_template, request, jsonify
 import google.generativeai as genai
 
 app = Flask(__name__, template_folder='.')
-
-# --- CONFIGURATION ---
 try:
     genai.configure(api_key=os.environ.get("GOOGLE_API_KEY"))
 except AttributeError:
@@ -15,8 +13,6 @@ except AttributeError:
     exit()
 
 model = genai.GenerativeModel('gemini-1.5-flash')
-
-# --- DYNAMIC LOADING MESSAGES ---
 LOADING_TIPS = itertools.cycle([
     "Pro Tip: Roll your clothes to save space in your luggage...",
     "Did you know? Booking flights on a Tuesday can sometimes be cheaper...",
@@ -27,8 +23,6 @@ LOADING_TIPS = itertools.cycle([
 @app.route('/loading_text')
 def loading_text():
     return jsonify(tip=next(LOADING_TIPS))
-
-# --- NEW: AI-POWERED "SMART SEARCH" SUGGESTIONS ENDPOINT ---
 @app.route('/suggest_destinations', methods=['POST'])
 def suggest_destinations():
     data = request.json
@@ -37,7 +31,6 @@ def suggest_destinations():
     if not query:
         return jsonify([])
 
-    # This new prompt is more general and effective
     prompt = (f"List 5 popular and real travel destinations (cities or famous regions) that start with the letters '{query}'. "
               f"Return ONLY a comma-separated list. For example: Paris France, Parma Italy, Paro Bhutan.")
     
@@ -50,7 +43,6 @@ def suggest_destinations():
         print(f"Error suggesting destinations: {e}")
         return jsonify([])
 
-# --- CURRENCY & MAIN GENERATION LOGIC ---
 CURRENCY_RATES_TO_USD = {
     "USD": 1.0, "INR": 83.5, "EUR": 0.92, "GBP": 0.79, "JPY": 157.0, "AUD": 1.5, "CAD": 1.37
 }
@@ -75,7 +67,6 @@ def index():
 
 @app.route('/generate', methods=['POST'])
 def generate():
-    # The city now comes from the unified 'destination' input
     city = request.form['destination']
     budget_original = float(request.form['budget'])
     currency = request.form['currency']
@@ -84,12 +75,12 @@ def generate():
     conversion_rate = CURRENCY_RATES_TO_USD.get(currency, 1.0)
     budget_usd = round(budget_original / conversion_rate)
 
-    # --- PROMPT CHAINING (UNCHANGED) ---
+   
     prompt1 = (f"Generate a high-level travel plan for a {days}-day trip to {city}. "
                f"The user's budget is {budget_original} {currency} (~${budget_usd} USD). "
                f"Include a captivating one-paragraph summary and a list of 3-4 key attractions.")
     high_level_plan = get_llm_response(prompt1)
-    # ... (rest of the prompt chain is the same as before) ...
+    
     prompt2 = (f"Based on this plan, create a detailed day-by-day itinerary. "
                f"IMPORTANT: For each day, start with a bold heading like '**Day 1: [Theme]**'. Follow this strictly.")
     daily_itinerary = get_llm_response(prompt2)
