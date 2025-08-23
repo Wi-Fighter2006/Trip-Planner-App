@@ -208,34 +208,47 @@
 
             try {
                 const response = await fetch('/generate', { method: 'POST', body: formData });
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
                 const data = await response.json();
                 
-                resultsDiv.innerHTML = `
-                    <div id="results-header"><h2>Your Custom ${days}-Day Itinerary for ${destination}</h2></div>
-                    <div class="result-card glass-card"><h3><i class="fas fa-paper-plane"></i>Trip Summary</h3>${marked.parse(data.high_level_plan)}</div>
-                    <div class="result-card glass-card"><h3><i class="fas fa-calendar-day"></i>Day-by-Day Plan</h3><div id="daily-itinerary-accordion"></div></div>
-                    <div class="result-card glass-card"><h3><i class="fas fa-utensils"></i>Dining Recommendations</h3>${marked.parse(data.dining_recommendations)}</div>
-                    <div class="result-card glass-card"><h3><i class="fas fa-suitcase-rolling"></i>Packing List</h3>${marked.parse(data.packing_list)}</div>
-                    <div class="result-card glass-card"><h3><i class="fas fa-star"></i>Fun Fact</h3><p>${data.fun_fact}</p></div>
-                    <div class="result-card glass-card"><h3><i class="fas fa-map-location-dot"></i>Your Map</h3><p><a href="${data.maps_link}" target="_blank">Open Interactive Map</a></p></div>
-                `;
+                // --- THIS IS THE FIX ---
+                // We will now check if the key data exists before trying to use it.
+                if (data.high_level_plan && data.daily_itinerary) {
+                    resultsDiv.innerHTML = `
+                        <div id="results-header"><h2>Your Custom ${days}-Day Itinerary for ${destination}</h2></div>
+                        <div class="result-card glass-card"><h3><i class="fas fa-paper-plane"></i>Trip Summary</h3>${marked.parse(data.high_level_plan)}</div>
+                        <div class="result-card glass-card"><h3><i class="fas fa-calendar-day"></i>Day-by-Day Plan</h3><div id="daily-itinerary-accordion"></div></div>
+                        <div class="result-card glass-card"><h3><i class="fas fa-utensils"></i>Dining Recommendations</h3>${marked.parse(data.dining_recommendations || '')}</div>
+                        <div class="result-card glass-card"><h3><i class="fas fa-suitcase-rolling"></i>Packing List</h3>${marked.parse(data.packing_list || '')}</div>
+                        <div class="result-card glass-card"><h3><i class="fas fa-star"></i>Fun Fact</h3><p>${data.fun_fact || 'No fun fact available.'}</p></div>
+                        <div class="result-card glass-card"><h3><i class="fas fa-map-location-dot"></i>Your Map</h3><p><a href="${data.maps_link}" target="_blank">Open Interactive Map</a></p></div>
+                    `;
 
-                const accordionContainer = document.getElementById('daily-itinerary-accordion');
-                const daysText = data.daily_itinerary.split(/\*\*(Day \d+:.*?)\*\*/).filter(Boolean);
-                for (let i = 0; i < daysText.length; i += 2) {
-                    accordionContainer.innerHTML += `<div class="accordion-item"><div class="accordion-header">${daysText[i]}</div><div class="accordion-content">${marked.parse(daysText[i+1].trim())}</div></div>`;
+                    const accordionContainer = document.getElementById('daily-itinerary-accordion');
+                    const daysText = data.daily_itinerary.split(/\*\*(Day \d+:.*?)\*\*/).filter(Boolean);
+                    if (daysText.length > 0) {
+                        for (let i = 0; i < daysText.length; i += 2) {
+                            accordionContainer.innerHTML += `<div class="accordion-item"><div class="accordion-header">${daysText[i]}</div><div class="accordion-content">${marked.parse(daysText[i+1].trim())}</div></div>`;
+                        }
+                    }
+                    addAccordionListeners();
+                } else {
+                    // This block runs if the AI returned an error or incomplete data
+                    throw new Error('The generated itinerary was incomplete. Please try again.');
                 }
                 
                 resultsDiv.classList.remove('hidden');
-                addAccordionListeners();
                 
                 document.querySelectorAll('.result-card, #results-header').forEach((card, index) => {
                     setTimeout(() => card.style.animation = 'fadeIn 0.5s ease-out forwards', index * 150);
                 });
 
-            } catch (error) {
+            } catch (error) => {
                 console.error('Error:', error);
-                resultsDiv.innerHTML = '<div class="result-card glass-card"><p>An error occurred. Please try again.</p></div>';
+                resultsDiv.innerHTML = `<div class="result-card glass-card" style="opacity: 1; text-align: center;"><h3><i class="fas fa-exclamation-triangle"></i>Oops!</h3><p>Something went wrong while generating your itinerary. This can sometimes happen with complex requests. Please try again.</p><p><i>Error details: ${error.message}</i></p></div>`;
+                resultsDiv.classList.remove('hidden');
             } finally {
                 clearInterval(loadingInterval);
                 loadingDiv.classList.add('hidden');
