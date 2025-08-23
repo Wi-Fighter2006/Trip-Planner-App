@@ -1,0 +1,253 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Travel Itinerary Generator</title>
+    
+    <!-- Google Fonts for better typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Lora:wght@400;600&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- marked.js for Markdown to HTML conversion -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <style>
+        :root {
+            --primary-color: #007bff;
+            --secondary-color: #6c757d;
+            --background-color: #f8f9fa;
+            --card-bg-color: #ffffff;
+            --text-color: #343a40;
+            --heading-color: #212529;
+            --border-color: #dee2e6;
+            --shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.8;
+            margin: 0;
+            padding: 2rem;
+        }
+
+        .container { max-width: 850px; margin: auto; }
+
+        header { text-align: center; margin-bottom: 3rem; }
+        header h1 { font-family: 'Lora', serif; font-size: 2.5rem; color: var(--heading-color); margin-bottom: 0.5rem; }
+        header p { color: var(--secondary-color); font-size: 1.1rem; }
+
+        #itinerary-form { background: var(--card-bg-color); padding: 2.5rem; border-radius: 12px; box-shadow: var(--shadow); margin-bottom: 3rem; }
+        .form-row { display: flex; gap: 1.5rem; margin-bottom: 1.5rem; }
+        .form-group { flex: 1; }
+        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 600; }
+        .form-group input { width: 100%; padding: 0.8rem 1rem; border: 1px solid var(--border-color); border-radius: 8px; box-sizing: border-box; font-size: 1rem; transition: border-color 0.2s, box-shadow 0.2s; }
+        .form-group input:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25); }
+
+        /* Style for the combined budget input and currency selector */
+        .budget-group {
+            display: flex;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .budget-group:focus-within {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+        }
+        .budget-group input {
+            border: none;
+            border-radius: 8px 0 0 8px;
+        }
+        .budget-group input:focus { box-shadow: none; }
+        .budget-group select {
+            border: none;
+            background-color: #f1f3f5;
+            padding: 0 1rem;
+            font-weight: 600;
+            color: var(--secondary-color);
+            border-radius: 0 8px 8px 0;
+            cursor: pointer;
+        }
+        .budget-group select:focus { outline: none; }
+
+
+        button#generate-btn { display: block; width: 100%; padding: 1rem; background: linear-gradient(45deg, #007bff, #0056b3); color: white; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; }
+        button#generate-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0, 123, 255, 0.3); }
+        button#generate-btn:disabled { background: #a9cce3; cursor: not-allowed; transform: none; box-shadow: none; }
+
+        .hidden { display: none; }
+
+        #loading { text-align: center; padding: 3rem 0; }
+        .spinner { border: 5px solid #f3f3f3; border-top: 5px solid var(--primary-color); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 1rem; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .result-card { background: var(--card-bg-color); padding: 2rem; border-radius: 12px; box-shadow: var(--shadow); margin-bottom: 2rem; }
+        .result-card h3 { font-family: 'Lora', serif; font-size: 1.5rem; color: var(--heading-color); margin-top: 0; margin-bottom: 1rem; display: flex; align-items: center; }
+        .result-card h3 i { margin-right: 1rem; color: var(--primary-color); }
+        
+        .output-content p:last-child { margin-bottom: 0; }
+        .output-content ul { padding-left: 20px; }
+        .output-content strong { color: var(--heading-color); }
+        
+        a { color: var(--primary-color); text-decoration: none; font-weight: 600; }
+        a:hover { text-decoration: underline; }
+
+        /* Accordion Styles */
+        .accordion-item { border-bottom: 1px solid var(--border-color); }
+        .accordion-item:last-child { border-bottom: none; }
+        .accordion-header { padding: 1rem 0; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-weight: 600; font-size: 1.1rem; }
+        .accordion-header::after { content: '\f078'; font-family: "Font Awesome 6 Free"; font-weight: 900; transition: transform 0.3s; }
+        .accordion-item.active .accordion-header::after { transform: rotate(-180deg); }
+        .accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out, padding 0.3s ease-out; padding: 0 1rem; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>AI Travel Itinerary Generator</h1>
+            <p>Your personalized adventure awaits. Just fill in the details below.</p>
+        </header>
+
+        <form id="itinerary-form">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="city">Destination City</label>
+                    <input type="text" id="city" name="city" placeholder="e.g., Kyoto" required>
+                </div>
+                <div class="form-group">
+                    <label for="days">Number of Days</label>
+                    <input type="number" id="days" name="days" placeholder="e.g., 7" required>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="budget">Total Budget</label>
+                <div class="budget-group">
+                    <input type="number" id="budget" name="budget" placeholder="e.g., 50000" required>
+                    <select id="currency" name="currency">
+                        <option value="INR">INR (₹)</option>
+                        <option value="USD">USD ($)</option>
+                        <option value="EUR">EUR (€)</option>
+                        <option value="GBP">GBP (£)</option>
+                        <option value="JPY">JPY (¥)</option>
+                        <option value="AUD">AUD (A$)</option>
+                        <option value="CAD">CAD (C$)</option>
+                    </select>
+                </div>
+            </div>
+            <button type="submit" id="generate-btn">Generate My Adventure</button>
+        </form>
+
+        <div id="loading" class="hidden">
+            <div class="spinner"></div>
+            <p>Crafting your perfect journey...</p>
+        </div>
+        
+        <div id="results" class="hidden">
+            <div class="result-card" id="high-level-plan-card">
+                <h3><i class="fas fa-paper-plane"></i>Trip Summary</h3>
+                <div id="high-level-plan-content" class="output-content"></div>
+            </div>
+            
+            <div class="result-card" id="daily-itinerary-card">
+                <h3><i class="fas fa-calendar-day"></i>Day-by-Day Plan</h3>
+                <div id="daily-itinerary-accordion"></div>
+            </div>
+            
+            <div class="result-card" id="dining-card">
+                <h3><i class="fas fa-utensils"></i>Dining Recommendations</h3>
+                <div id="dining-content" class="output-content"></div>
+            </div>
+
+            <div class="result-card" id="map-card">
+                <h3><i class="fas fa-map-location-dot"></i>View Your Map</h3>
+                <p id="map-link-container"></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('itinerary-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const form = e.target;
+            const formData = new FormData(form);
+            const resultsDiv = document.getElementById('results');
+            const loadingDiv = document.getElementById('loading');
+            const generateBtn = document.getElementById('generate-btn');
+
+            resultsDiv.classList.add('hidden');
+            loadingDiv.classList.remove('hidden');
+            generateBtn.disabled = true;
+            generateBtn.textContent = 'Generating...';
+
+            try {
+                const response = await fetch('/generate', { method: 'POST', body: formData });
+                const data = await response.json();
+
+                document.getElementById('high-level-plan-content').innerHTML = marked.parse(data.high_level_plan);
+                document.getElementById('dining-content').innerHTML = marked.parse(data.dining_recommendations);
+                document.getElementById('map-link-container').innerHTML = `<a href="${data.maps_link}" target="_blank">Open Interactive Map in New Tab</a>`;
+
+                const accordionContainer = document.getElementById('daily-itinerary-accordion');
+                accordionContainer.innerHTML = ''; 
+                
+                const days = data.daily_itinerary.split(/\*\*(Day \d+:.*?)\*\*/).filter(Boolean);
+
+                for (let i = 0; i < days.length; i += 2) {
+                    const title = days[i];
+                    const content = days[i + 1].trim();
+                    const item = document.createElement('div');
+                    item.className = 'accordion-item';
+                    const header = document.createElement('div');
+                    header.className = 'accordion-header';
+                    header.textContent = title;
+                    const contentDiv = document.createElement('div');
+                    contentDiv.className = 'accordion-content output-content';
+                    contentDiv.innerHTML = marked.parse(content);
+                    item.appendChild(header);
+                    item.appendChild(contentDiv);
+                    accordionContainer.appendChild(item);
+                }
+                
+                addAccordionListeners();
+                resultsDiv.classList.remove('hidden');
+
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('results').innerHTML = '<p class="error">An error occurred. Please try again.</p>';
+                resultsDiv.classList.remove('hidden');
+            } finally {
+                loadingDiv.classList.add('hidden');
+                generateBtn.disabled = false;
+                generateBtn.textContent = 'Generate My Adventure';
+            }
+        });
+
+        function addAccordionListeners() {
+            const headers = document.querySelectorAll('.accordion-header');
+            headers.forEach(header => {
+                header.addEventListener('click', () => {
+                    const item = header.parentElement;
+                    const content = header.nextElementSibling;
+                    
+                    item.classList.toggle('active');
+                    if (content.style.maxHeight) {
+                        content.style.maxHeight = null;
+                        content.style.padding = '0 1rem';
+                    } else {
+                        content.style.maxHeight = content.scrollHeight + "px";
+                        content.style.padding = '1rem';
+                    }
+                });
+            });
+        }
+    </script>
+</body>
+</html>
