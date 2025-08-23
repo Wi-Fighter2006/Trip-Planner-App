@@ -24,26 +24,6 @@ LOADING_TIPS = itertools.cycle([
 def loading_text():
     return jsonify(tip=next(LOADING_TIPS))
 
-@app.route('/suggest_destinations', methods=['POST'])
-def suggest_destinations():
-    data = request.json
-    query = data.get('query')
-    
-    if not query:
-        return jsonify([])
-
-    prompt = (f"List 5 popular and real travel destinations (cities or famous regions) that start with the letters '{query}'. "
-              f"Return ONLY a comma-separated list. For example: Paris France, Parma Italy, Paro Bhutan.")
-    
-    try:
-        response = model.generate_content(prompt)
-        suggestions = ''.join(part.text for part in response.parts).strip()
-        destination_list = [dest.strip() for dest in suggestions.split(',') if dest.strip()]
-        return jsonify(destination_list)
-    except Exception as e:
-        print(f"Error suggesting destinations: {e}")
-        return jsonify([])
-
 CURRENCY_RATES_TO_USD = {
     "USD": 1.0, "INR": 83.5, "EUR": 0.92, "GBP": 0.79, "JPY": 157.0, "AUD": 1.5, "CAD": 1.37
 }
