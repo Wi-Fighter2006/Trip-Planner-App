@@ -1,251 +1,238 @@
-<!-- templates/index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Travel Itinerary Generator</title>
+    <title>AI Trip Planner Pro</title>
     
-    <!-- Google Fonts for better typography -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Lora:wght@400;600&display=swap" rel="stylesheet">
-    
-    <!-- Font Awesome for icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-
-    <!-- marked.js for Markdown to HTML conversion -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
     <style>
         :root {
-            --primary-color: #007bff;
-            --secondary-color: #6c757d;
-            --background-color: #f8f9fa;
-            --card-bg-color: #ffffff;
-            --text-color: #343a40;
-            --heading-color: #212529;
-            --border-color: #dee2e6;
-            --shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            --primary-color: #367cff;
+            --primary-light: #6b9eff;
+            --secondary-color: #ffc107;
+            --background-color: #0b0f19;
+            --card-bg-color: rgba(255, 255, 255, 0.08);
+            --text-color: #e0e0e0;
+            --heading-color: #ffffff;
+            --border-color: rgba(255, 255, 255, 0.2);
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         body {
             font-family: 'Poppins', sans-serif;
             background-color: var(--background-color);
+            background-image: url('https://images.unsplash.com/photo-1501785888041-af3ef285b470?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
             color: var(--text-color);
             line-height: 1.8;
             margin: 0;
             padding: 2rem;
+            overflow-x: hidden;
         }
-
+        
         .container { max-width: 850px; margin: auto; }
 
-        header { text-align: center; margin-bottom: 3rem; }
-        header h1 { font-family: 'Lora', serif; font-size: 2.5rem; color: var(--heading-color); margin-bottom: 0.5rem; }
-        header p { color: var(--secondary-color); font-size: 1.1rem; }
+        header { text-align: center; margin-bottom: 3rem; animation: fadeIn 1s ease-out; }
+        header h1 { font-family: 'Lora', serif; font-size: 3rem; color: var(--heading-color); margin-bottom: 0.5rem; text-shadow: 0 2px 10px rgba(0,0,0,0.5); }
+        header p { font-family: 'Lora', serif; font-style: italic; color: #f0f0f0; font-size: 1.2rem; }
 
-        #itinerary-form { background: var(--card-bg-color); padding: 2.5rem; border-radius: 12px; box-shadow: var(--shadow); margin-bottom: 3rem; }
+        /* Glassmorphism Card Style */
+        .glass-card {
+            background: var(--card-bg-color);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            padding: 2.5rem;
+            animation: fadeIn 1s ease-out;
+        }
+
+        #itinerary-form { margin-bottom: 3rem; }
         .form-row { display: flex; gap: 1.5rem; margin-bottom: 1.5rem; }
         .form-group { flex: 1; }
-        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 600; }
-        .form-group input { width: 100%; padding: 0.8rem 1rem; border: 1px solid var(--border-color); border-radius: 8px; box-sizing: border-box; font-size: 1rem; transition: border-color 0.2s, box-shadow 0.2s; }
-        .form-group input:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25); }
+        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--heading-color); }
+        .form-group input, .budget-group { background: rgba(0,0,0,0.2); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-color); }
+        .form-group input { width: 100%; padding: 0.8rem 1rem; box-sizing: border-box; font-size: 1rem; }
+        .form-group input::placeholder { color: #a0a0a0; }
 
-        /* Style for the combined budget input and currency selector */
-        .budget-group {
-            display: flex;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            transition: border-color 0.2s, box-shadow 0.2s;
-        }
-        .budget-group:focus-within {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
-        }
-        .budget-group input {
-            border: none;
-            border-radius: 8px 0 0 8px;
-        }
-        .budget-group input:focus { box-shadow: none; }
-        .budget-group select {
-            border: none;
-            background-color: #f1f3f5;
-            padding: 0 1rem;
-            font-weight: 600;
-            color: var(--secondary-color);
-            border-radius: 0 8px 8px 0;
-            cursor: pointer;
-        }
-        .budget-group select:focus { outline: none; }
-
-
-        button#generate-btn { display: block; width: 100%; padding: 1rem; background: linear-gradient(45deg, #007bff, #0056b3); color: white; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; }
-        button#generate-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0, 123, 255, 0.3); }
-        button#generate-btn:disabled { background: #a9cce3; cursor: not-allowed; transform: none; box-shadow: none; }
+        .budget-group { display: flex; }
+        .budget-group input { border-radius: 8px 0 0 8px; border-right: none;}
+        .budget-group select { border: none; background: rgba(0,0,0,0.3); padding: 0 1rem; font-weight: 600; color: var(--text-color); border-radius: 0 8px 8px 0; cursor: pointer; }
+        
+        button#generate-btn { display: block; width: 100%; padding: 1rem; background: linear-gradient(45deg, var(--primary-color), var(--primary-light)); color: white; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease; }
+        button#generate-btn:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(54, 124, 255, 0.3); }
+        
+        #loading { text-align: center; padding: 3rem 0; animation: fadeIn 0.5s; }
+        .spinner { border: 5px solid rgba(255,255,255,0.2); border-top: 5px solid var(--primary-light); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 1rem; }
+        #loading-text { font-weight: 600; font-style: italic; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         .hidden { display: none; }
 
-        #loading { text-align: center; padding: 3rem 0; }
-        .spinner { border: 5px solid #f3f3f3; border-top: 5px solid var(--primary-color); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 1rem; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .result-card { margin-bottom: 2rem; opacity: 0; }
+        .card-animate { animation: fadeIn 0.5s ease-out forwards; }
+        .result-card h3 { font-family: 'Lora', serif; font-size: 1.5rem; color: var(--heading-color); margin: 0 0 1rem 0; display: flex; align-items: center; }
+        .result-card h3 i { margin-right: 1rem; color: var(--primary-light); width: 24px; text-align: center; }
 
-        .result-card { background: var(--card-bg-color); padding: 2rem; border-radius: 12px; box-shadow: var(--shadow); margin-bottom: 2rem; }
-        .result-card h3 { font-family: 'Lora', serif; font-size: 1.5rem; color: var(--heading-color); margin-top: 0; margin-bottom: 1rem; display: flex; align-items: center; }
-        .result-card h3 i { margin-right: 1rem; color: var(--primary-color); }
-        
-        .output-content p:last-child { margin-bottom: 0; }
-        .output-content ul { padding-left: 20px; }
-        .output-content strong { color: var(--heading-color); }
-        
-        a { color: var(--primary-color); text-decoration: none; font-weight: 600; }
-        a:hover { text-decoration: underline; }
-
-        /* Accordion Styles */
-        .accordion-item { border-bottom: 1px solid var(--border-color); }
-        .accordion-item:last-child { border-bottom: none; }
-        .accordion-header { padding: 1rem 0; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-weight: 600; font-size: 1.1rem; }
+        .accordion-header { padding: 1rem 0; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-weight: 600; font-size: 1.1rem; color: var(--heading-color); }
         .accordion-header::after { content: '\f078'; font-family: "Font Awesome 6 Free"; font-weight: 900; transition: transform 0.3s; }
         .accordion-item.active .accordion-header::after { transform: rotate(-180deg); }
-        .accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out, padding 0.3s ease-out; padding: 0 1rem; }
+        .accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; }
+
+        #share-container { text-align: center; margin-top: 2rem; }
+        #share-btn { background: var(--secondary-color); color: #111; padding: 0.8rem 1.5rem; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; }
+        #share-btn:hover { transform: scale(1.05); }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>AI Travel Itinerary Generator</h1>
-            <p>Your personalized adventure awaits. Just fill in the details below.</p>
+            <h1>Trip Planner Pro</h1>
+            <p id="travel-quote">"The world is a book and those who do not travel read only one page."</p>
         </header>
 
-        <form id="itinerary-form">
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="city">Destination City</label>
-                    <input type="text" id="city" name="city" placeholder="e.g., Kyoto" required>
+        <div id="itinerary-form" class="glass-card">
+            <form>
+                <div class="form-row">
+                    <div class="form-group"><label for="city">Destination City</label><input type="text" id="city" name="city" placeholder="e.g., Rome" required></div>
+                    <div class="form-group"><label for="days">Number of Days</label><input type="number" id="days" name="days" placeholder="e.g., 5" required></div>
                 </div>
-                <div class="form-group">
-                    <label for="days">Number of Days</label>
-                    <input type="number" id="days" name="days" placeholder="e.g., 7" required>
-                </div>
-            </div>
-            <div class="form-group">
-                <label for="budget">Total Budget</label>
-                <div class="budget-group">
-                    <input type="number" id="budget" name="budget" placeholder="e.g., 50000" required>
-                    <select id="currency" name="currency">
-                        <option value="INR">INR (₹)</option>
-                        <option value="USD">USD ($)</option>
-                        <option value="EUR">EUR (€)</option>
-                        <option value="GBP">GBP (£)</option>
-                        <option value="JPY">JPY (¥)</option>
-                        <option value="AUD">AUD (A$)</option>
-                        <option value="CAD">CAD (C$)</option>
-                    </select>
-                </div>
-            </div>
-            <button type="submit" id="generate-btn">Generate My Adventure</button>
-        </form>
-
-        <div id="loading" class="hidden">
-            <div class="spinner"></div>
-            <p>Crafting your perfect journey...</p>
+                <div class="form-group"><label for="budget">Total Budget</label><div class="budget-group"><input type="number" id="budget" name="budget" placeholder="e.g., 2000" required><select id="currency" name="currency"><option value="USD">USD ($)</option><option value="INR">INR (₹)</option><option value="EUR">EUR (€)</option><option value="GBP">GBP (£)</option></select></div></div>
+                <button type="submit" id="generate-btn">Create My Masterpiece</button>
+            </form>
         </div>
+
+        <div id="loading" class="hidden"><div class="spinner"></div><p id="loading-text">Crafting your perfect journey...</p></div>
         
         <div id="results" class="hidden">
-            <div class="result-card" id="high-level-plan-card">
-                <h3><i class="fas fa-paper-plane"></i>Trip Summary</h3>
-                <div id="high-level-plan-content" class="output-content"></div>
-            </div>
-            
-            <div class="result-card" id="daily-itinerary-card">
-                <h3><i class="fas fa-calendar-day"></i>Day-by-Day Plan</h3>
-                <div id="daily-itinerary-accordion"></div>
-            </div>
-            
-            <div class="result-card" id="dining-card">
-                <h3><i class="fas fa-utensils"></i>Dining Recommendations</h3>
-                <div id="dining-content" class="output-content"></div>
-            </div>
-
-            <div class="result-card" id="map-card">
-                <h3><i class="fas fa-map-location-dot"></i>View Your Map</h3>
-                <p id="map-link-container"></p>
-            </div>
+            <!-- Results will be injected here -->
         </div>
     </div>
 
     <script>
-        document.getElementById('itinerary-form').addEventListener('submit', async function(e) {
+        const quotes = [
+            "\"The world is a book and those who do not travel read only one page.\" – St. Augustine",
+            "\"Not all those who wander are lost.\" – J.R.R. Tolkien",
+            "\"Life is either a daring adventure or nothing at all.\" – Helen Keller",
+            "\"Travel is fatal to prejudice, bigotry, and narrow-mindedness.\" – Mark Twain",
+            "\"To travel is to live.\" – Hans Christian Andersen"
+        ];
+        document.getElementById('travel-quote').textContent = quotes[Math.floor(Math.random() * quotes.length)];
+        
+        let loadingInterval;
+        const form = document.querySelector('#itinerary-form form');
+        form.addEventListener('submit', async function(e) {
             e.preventDefault();
-            const form = e.target;
             const formData = new FormData(form);
             const resultsDiv = document.getElementById('results');
             const loadingDiv = document.getElementById('loading');
             const generateBtn = document.getElementById('generate-btn');
-
+            
             resultsDiv.classList.add('hidden');
             loadingDiv.classList.remove('hidden');
             generateBtn.disabled = true;
             generateBtn.textContent = 'Generating...';
 
+            const loadingText = document.getElementById('loading-text');
+            loadingInterval = setInterval(async () => {
+                const response = await fetch('/loading_text');
+                const data = await response.json();
+                loadingText.textContent = data.tip;
+            }, 3000);
+
             try {
                 const response = await fetch('/generate', { method: 'POST', body: formData });
                 const data = await response.json();
 
-                document.getElementById('high-level-plan-content').innerHTML = marked.parse(data.high_level_plan);
-                document.getElementById('dining-content').innerHTML = marked.parse(data.dining_recommendations);
-                document.getElementById('map-link-container').innerHTML = `<a href="${data.maps_link}" target="_blank">Open Interactive Map in New Tab</a>`;
+                resultsDiv.innerHTML = `
+                    <div class="result-card glass-card"><h3><i class="fas fa-paper-plane"></i>Trip Summary</h3>${marked.parse(data.high_level_plan)}</div>
+                    <div class="result-card glass-card"><h3><i class="fas fa-calendar-day"></i>Day-by-Day Plan</h3><div id="daily-itinerary-accordion"></div></div>
+                    <div class="result-card glass-card"><h3><i class="fas fa-utensils"></i>Dining Recommendations</h3>${marked.parse(data.dining_recommendations)}</div>
+                    <div class="result-card glass-card"><h3><i class="fas fa-suitcase-rolling"></i>Packing List</h3>${marked.parse(data.packing_list)}</div>
+                    <div class="result-card glass-card"><h3><i class="fas fa-star"></i>Fun Fact</h3><p>${data.fun_fact}</p></div>
+                    <div class="result-card glass-card"><h3><i class="fas fa-map-location-dot"></i>Your Map</h3><p><a href="${data.maps_link}" target="_blank">Open Interactive Map in New Tab</a></p></div>
+                    <div id="share-container"><button id="share-btn"><i class="fas fa-share-alt"></i> Share Itinerary</button></div>
+                `;
 
                 const accordionContainer = document.getElementById('daily-itinerary-accordion');
-                accordionContainer.innerHTML = ''; 
-                
                 const days = data.daily_itinerary.split(/\*\*(Day \d+:.*?)\*\*/).filter(Boolean);
-
                 for (let i = 0; i < days.length; i += 2) {
-                    const title = days[i];
-                    const content = days[i + 1].trim();
-                    const item = document.createElement('div');
-                    item.className = 'accordion-item';
-                    const header = document.createElement('div');
-                    header.className = 'accordion-header';
-                    header.textContent = title;
-                    const contentDiv = document.createElement('div');
-                    contentDiv.className = 'accordion-content output-content';
-                    contentDiv.innerHTML = marked.parse(content);
-                    item.appendChild(header);
-                    item.appendChild(contentDiv);
-                    accordionContainer.appendChild(item);
+                    accordionContainer.innerHTML += `<div class="accordion-item"><div class="accordion-header">${days[i]}</div><div class="accordion-content">${marked.parse(days[i+1].trim())}</div></div>`;
                 }
                 
-                addAccordionListeners();
                 resultsDiv.classList.remove('hidden');
+                addAccordionListeners();
+                document.getElementById('share-btn').addEventListener('click', () => shareItinerary(data, formData.get('city')));
+
+                // Staggered animation for cards
+                const cards = document.querySelectorAll('.result-card');
+                cards.forEach((card, index) => {
+                    setTimeout(() => {
+                        card.classList.add('card-animate');
+                    }, index * 150);
+                });
 
             } catch (error) {
                 console.error('Error:', error);
-                document.getElementById('results').innerHTML = '<p class="error">An error occurred. Please try again.</p>';
-                resultsDiv.classList.remove('hidden');
+                resultsDiv.innerHTML = '<p class="error">An error occurred. Please try again.</p>';
             } finally {
+                clearInterval(loadingInterval);
                 loadingDiv.classList.add('hidden');
                 generateBtn.disabled = false;
-                generateBtn.textContent = 'Generate My Adventure';
+                generateBtn.textContent = 'Create My Masterpiece';
             }
         });
 
         function addAccordionListeners() {
-            const headers = document.querySelectorAll('.accordion-header');
-            headers.forEach(header => {
+            document.querySelectorAll('.accordion-header').forEach(header => {
                 header.addEventListener('click', () => {
                     const item = header.parentElement;
-                    const content = header.nextElementSibling;
-                    
                     item.classList.toggle('active');
-                    if (content.style.maxHeight) {
-                        content.style.maxHeight = null;
-                        content.style.padding = '0 1rem';
-                    } else {
-                        content.style.maxHeight = content.scrollHeight + "px";
-                        content.style.padding = '1rem';
-                    }
+                    const content = header.nextElementSibling;
+                    content.style.maxHeight = item.classList.contains('active') ? content.scrollHeight + "px" : null;
                 });
+            });
+        }
+
+        function shareItinerary(data, city) {
+            const cleanText = (htmlString) => new DOMParser().parseFromString(htmlString, "text/html").documentElement.textContent;
+            
+            const itineraryText = `
+✈️ Here's my travel plan for ${city}! ✈️
+
+*TRIP SUMMARY*
+${cleanText(marked.parse(data.high_level_plan))}
+
+*DAILY PLAN*
+${cleanText(marked.parse(data.daily_itinerary.replace(/\*\*/g, '')))}
+
+*DINING RECOMMENDATIONS*
+${cleanText(marked.parse(data.dining_recommendations))}
+
+*PACKING LIST*
+${cleanText(marked.parse(data.packing_list))}
+            `;
+
+            navigator.clipboard.writeText(itineraryText.trim()).then(() => {
+                const shareButton = document.getElementById('share-btn');
+                shareButton.innerHTML = `<i class="fas fa-check"></i> Copied!`;
+                setTimeout(() => {
+                    shareButton.innerHTML = `<i class="fas fa-share-alt"></i> Share Itinerary`;
+                }, 2000);
             });
         }
     </script>
