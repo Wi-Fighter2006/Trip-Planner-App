@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Trip Planner Pro</title>
+    <title>Trip Craft - An AI Trip Itinerary Generator</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -48,11 +48,10 @@
             text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
         }
         .container { max-width: 900px; margin: auto; }
-
-        /* =================== HEADER =================== */
         header { text-align: center; margin-bottom: 3rem; animation: fadeIn 1s ease-out; }
-        header h1 { font-family: 'Lora', serif; font-size: 3rem; color: var(--heading-color); margin-bottom: 0.5rem; text-shadow: 0 2px 10px rgba(0,0,0,0.5); }
-        header p { font-family: 'Lora', serif; font-style: italic; color: #f0f0f0; font-size: 1.2rem; }
+        header h1 {font-family: 'Lora', serif;font-size: 3rem;color: var(--heading-color);margin: 0;margin-bottom: 0.2rem;text-shadow: 0 2px 10px rgba(0,0,0,0.5);}
+        header h2 {font-family: 'Lora', serif;font-size: 2rem;color: var(--heading-color);margin: 0;margin-top: 0.2rem;margin-bottom: 0.5rem;text-shadow: 0 2px 10px rgba(0,0,0,0.5);}
+        header p {font-family: 'Lora', serif;font-style: italic;color: #f0f0f0;font-size: 1.2rem;}
 
         /* =================== GLASS CARD =================== */
         .glass-card {
@@ -85,7 +84,7 @@
             transition: all 0.3s ease;
             box-sizing: border-box;
         }
-        .form-group input::placeholder { color: #a0a0a0; }
+        .form-group input::placeholder { color: #a5fff1; }
         .form-group input:focus,
         .budget-group input:focus,
         .budget-group select:focus {
@@ -208,7 +207,8 @@
 <body>
     <div class="container">
         <header>
-            <h1>Trip Planner Pro</h1>
+            <h1>Trip Craft</h1>
+            <h2>Design Your Journey with AI</h2>
             <p id="travel-quote"></p>
         </header>
 
@@ -232,7 +232,7 @@
                 <div class="form-group">
                     <label for="budget">Total Budget</label>
                     <div class="budget-group">
-                        <input type="number" id="budget" name="budget" placeholder="e.g., 2000" min="0" required>
+                        <input type="number" id="budget" name="budget" placeholder="e.g., 2000" min="0" step="500" required>
                         <select id="currency" name="currency">
                             <option value="USD">USD ($)</option>
                             <option value="INR">INR (₹)</option>
@@ -241,7 +241,7 @@
                         </select>
                     </div>
                 </div>
-                <button type="submit" id="generate-btn">Create My Masterpiece</button>
+                <button type="submit" id="generate-btn">Generate My itinerary</button>
             </form>
         </div>
 
