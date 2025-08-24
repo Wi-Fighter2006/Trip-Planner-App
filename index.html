@@ -72,6 +72,7 @@
         .form-group { flex: 1; }
         .form-group label { display: block; font-weight: 600; margin-bottom: 0.5rem; color: var(--heading-color); font-size: 1rem; }
         .form-group input,
+        .form-group textarea,
         .budget-group input,
         .budget-group select {
             width: 100%;
@@ -81,11 +82,15 @@
             background: rgba(255,255,255,0.05);
             color: var(--text-color);
             font-size: 1rem;
+            font-family: 'Poppins', sans-serif;
             transition: all 0.3s ease;
             box-sizing: border-box;
         }
-        .form-group input::placeholder { color: #a5fff1; }
+        .form-group textarea { resize: vertical; }
+        .form-group input::placeholder,
+        .form-group textarea::placeholder { color: #a5fff1; }
         .form-group input:focus,
+        .form-group textarea:focus,
         .budget-group input:focus,
         .budget-group select:focus {
             outline: none;
@@ -110,6 +115,40 @@
         .budget-group select:hover { background: rgba(255,255,255,0.1); }
         .error { color: #ff8a80; text-align: center; font-weight: bold; }
 
+        /* =================== TRIP TYPE SWITCH (NEW) =================== */
+        .form-group#trip-type-container {
+            margin-bottom: 2rem;
+        }
+        .trip-type-switch {
+            display: flex;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.2);
+            overflow: hidden;
+            width: 100%;
+            padding: 5px;
+        }
+        .trip-type-switch input[type="radio"] {
+            display: none;
+        }
+        .trip-type-switch label {
+            flex: 1;
+            text-align: center;
+            padding: 0.75rem 1rem;
+            margin-bottom: 0; /* Override default label margin */
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--text-color);
+            transition: all 0.3s ease-in-out;
+            border-radius: 9px;
+            text-shadow: none;
+        }
+        .trip-type-switch input[type="radio"]:checked + label {
+            background: var(--primary-color);
+            color: var(--heading-color);
+            box-shadow: 0 4px 15px rgba(54, 124, 255, 0.4);
+        }
+        
         /* =================== BUTTONS =================== */
         button#generate-btn {
             display: block;
@@ -215,6 +254,16 @@
         <!-- FORM -->
         <div id="itinerary-form" class="glass-card">
             <form>
+                <div class="form-group" id="trip-type-container">
+                    <label>Trip Type</label>
+                    <div class="trip-type-switch">
+                        <input type="radio" id="domestic" name="trip-type" value="domestic" checked>
+                        <label for="domestic">Domestic</label>
+                        <input type="radio" id="international" name="trip-type" value="international">
+                        <label for="international">International</label>
+                    </div>
+                </div>
+
                 <div class="form-row">
                     <div class="form-group">
                         <label for="city">Destination City</label>
@@ -224,23 +273,41 @@
                         <label for="days">Number of Days</label>
                         <input type="number" id="days" name="days" placeholder="e.g., 7" min="1" required>
                     </div>
+                </div>
+                <div class="form-row">
                     <div class="form-group">
-                        <label for="people">Number of People</label>
-                        <input type="number" id="people" name="people" placeholder="e.g., 2" min="1" required>
+                        <label for="males">Number of Males</label>
+                        <input type="number" id="males" name="males" placeholder="e.g., 1" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="females">Number of Females</label>
+                        <input type="number" id="females" name="females" placeholder="e.g., 1" min="0" required>
                     </div>
                 </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="journey-date">Time of Journey (Expected Date)</label>
+                        <input type="date" id="journey-date" name="journey-date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="budget">Total Budget</label>
+                        <div class="budget-group">
+                            <input type="number" id="budget" name="budget" placeholder="e.g., 2000" min="0" step="500" required>
+                            <select id="currency" name="currency">
+                                <option value="USD">USD ($)</option>
+                                <option value="INR">INR (₹)</option>
+                                <option value="EUR">EUR (€)</option>
+                                <option value="GBP">GBP (£)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
                 <div class="form-group">
-                    <label for="budget">Total Budget</label>
-                    <div class="budget-group">
-                        <input type="number" id="budget" name="budget" placeholder="e.g., 2000" min="0" step="500" required>
-                        <select id="currency" name="currency">
-                            <option value="USD">USD ($)</option>
-                            <option value="INR">INR (₹)</option>
-                            <option value="EUR">EUR (€)</option>
-                            <option value="GBP">GBP (£)</option>
-                        </select>
-                    </div>
+                    <label for="notes">Notes (Optional)</label>
+                    <textarea id="notes" name="notes" rows="4" placeholder="e.g., I'd like to visit the Louvre Museum, or prefer vegetarian food."></textarea>
                 </div>
+                
                 <button type="submit" id="generate-btn">Generate My itinerary</button>
             </form>
         </div>
